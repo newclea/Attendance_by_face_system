@@ -28,3 +28,11 @@ class MissingParameterError(AppBaseException):
 class UserAlreadyDeactiveError(AppBaseException):
     """用户已退出活跃状态"""
     pass
+
+class NotRealFaceError(AppBaseException):
+    """不是人脸"""
+    pass
+
+class AddFaceError(AppBaseException):
+    """添加人脸失败"""
+    pass

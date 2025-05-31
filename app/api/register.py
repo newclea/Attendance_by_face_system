@@ -19,5 +19,6 @@ async def register(form: UserCreate, db: Session = Depends(get_db)):
         student_id=form.student_id, 
         password=form.password, 
         name=form.name,
+        photo=form.photo,
         db=db
     )

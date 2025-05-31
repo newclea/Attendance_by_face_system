@@ -12,10 +12,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     try:
         payload = decode_access_token(token)
-        student_id: str = payload.get("sub")
-        if student_id is None:
+        id: str = payload.get("sub")
+        if id is None:
             raise HTTPException(status_code=401, detail="Token无效")
-        user = db.query(User).filter(User.student_id == student_id).first()
+        user = db.query(User).filter(User.id == id).first()
         if not user:
             raise UserNotFoundError("This student does not register yet")
         if not user.is_active:
