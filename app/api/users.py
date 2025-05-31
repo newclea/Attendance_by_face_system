@@ -50,3 +50,15 @@ async def reset_photo(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.get("/Alluser")
+async def get_all_users(db: Session = Depends(get_db)):
+    """
+    Get all users.
+    """
+    try:
+        users = db.query(User).all()
+        return JSONResponse(content={"users": [user.to_dict() for user in users]})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
