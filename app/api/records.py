@@ -21,3 +21,21 @@ async def get_records(current_user: User = Depends(get_current_user), db: Sessio
         current_user=current_user,
         db=db,
     )
+
+
+@router.get("/student_records")
+async def get_student_records(
+    student_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+):
+    """
+    Get records for a specific student.
+    """
+    if not current_user.is_admin and current_user.student_id != student_id:
+        raise HTTPException(status_code=403, detail="You do not have permission to access this student's records.")
+    
+    return Build_Sucess_Message(
+        get_records_service,
+        student_id=student_id,
+        current_user=current_user,
+        db=db,
+    )
