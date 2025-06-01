@@ -27,7 +27,6 @@ async def add_record(current_user: User, db: Session, class_id: int):
     
     try:
         new_record = Record(
-            class_id=class_id,
             student_id=current_user.id,
             student_name=current_user.student_name,
         )
