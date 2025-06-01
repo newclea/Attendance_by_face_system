@@ -14,11 +14,15 @@ async def register(student_id: str, password: str, name: str, photo: UploadFile,
     """
     Register service function.
     """
+    # file_bytes = await photo.read(
+    # if not file_bytes:
+    #     raise ValueError("上传照片为空，请重新上传")
+
     if not student_id or not password:
         raise MissingParameterError("Missing required parameters")
 
     # 检查用户是否已存在
-    existing_user = db.query(User).filter(User.student_id == student_id).first()
+    existing_user = db.query(User).filter(User.id == student_id).first()
     if existing_user:
         raise UserAlreadyExistsError("This student ID is already registered")
     
@@ -26,19 +30,19 @@ async def register(student_id: str, password: str, name: str, photo: UploadFile,
     if not photo.content_type.startswith("image/"):
         raise ValueError("Please upload a valid image file")
     
-    is_live_face = await detectLiveFaceByFile(photo)
-    if not is_live_face:
-        raise NotRealFaceError("The uploaded photo does not contain a live face")
+    # is_live_face = await detectLiveFaceByFile(photo)
+    # if not is_live_face:
+    #     raise NotRealFaceError("The uploaded photo does not contain a live face")
 
     # 创建新用户
     hashed_password = pwd_context.hash(password)
-    new_user = User(student_id=student_id, hashed_password=hashed_password, student_name=name)
+    new_user = User(id=student_id, hashed_password=hashed_password, student_name=name)
     
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    addFacesByFile(file=photo, current_user= new_user, db=db)
+    await addFacesByFile(file=photo, current_user= new_user, db=db)
 
     
 
@@ -47,7 +51,7 @@ async def register(student_id: str, password: str, name: str, photo: UploadFile,
         "message": "Registration successful",
         "user": {
             "id": new_user.id,
-            "student_id": new_user.student_id,
+            "student_id": new_user.id,
             "student_name": new_user.student_name
         }
     }

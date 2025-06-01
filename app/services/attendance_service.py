@@ -14,9 +14,9 @@ async def attendance_service(
     """
     Mark attendance for a student in a class.
     """
-    if not detectLiveFaceByFile(file):
+    if not await detectLiveFaceByFile(file):
         raise NotRealFaceError("检测到非真实人脸，请重新上传")
-    
+    file.seek(0)
     response = await searchFaceByFile(file)
     if response is None:
         raise AddFaceError("人脸库中未找到匹配的人脸，请先添加人脸")
@@ -28,6 +28,11 @@ async def attendance_service(
                 student_id=face.user.id,
                 student_name=face.user.student_name,
             )
+
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+
             return {
                 "message": "人脸识别成功",
                 "data": response.get("data"),

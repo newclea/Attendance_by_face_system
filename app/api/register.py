@@ -19,7 +19,7 @@ async def register(
     """
     Register endpoint.
     """
-
+    # 必须读取文件，否则 FastAPI 会延迟释放 UploadFile 对象
     return await Build_Sucess_Message(
         service_func=register_service, 
         student_id=student_id,

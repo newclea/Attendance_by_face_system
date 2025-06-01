@@ -16,7 +16,7 @@ async def login(form: UserLogin, db: Session = Depends(get_db)):
     """
     Sign in endpoint.
     """
-    return Build_Sucess_Message(
+    return await Build_Sucess_Message(
         service_func=login_service, 
         student_id=form.student_id, 
         password=form.password,

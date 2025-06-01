@@ -1,3 +1,5 @@
+import tempfile
+
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkcore.exceptions import exceptions
 from huaweicloudsdkfrs.v2.region.frs_region import FrsRegion
@@ -30,49 +32,48 @@ def GetClient():
 client = GetClient()
 
 async def searchFaceByFile(file: UploadFile, face_set_name: str = "test"):
+    tmp_path = None
+    form_file = None
     try:
-        file_bytes = await file.read()
+        with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
+            tmp.write(await file.read())
+            tmp_path = tmp.name
 
-        # 将其封装为 FormFile，注意要传入 filename 和 content_type
-        form_file = FormFile(
-            file_content=file_bytes,
-            file_name=file.filename,
-            content_type=file.content_type or "application/octet-stream"
-        )
+        form_file = FormFile(tmp_path, file.content_type or "application/octet-stream")
 
         request = SearchFaceByFileRequest()
         request.face_set_name = face_set_name
-
         request.body = SearchFaceByFileRequestBody(
             return_fields="[\"timestamp\"]",
             filter="timestamp:10",
             top_n=10,
-            image_file=FormFile(form_file)
+            image_file=form_file
         )
+
         response: SearchFaceByFileResponse = client.search_face_by_file(request)
         if not response.faces:
             raise NotRealFaceError("检测到非真实人脸，请重新上传")
+
         face = response.faces[0]
         if not face:
             raise NotRealFaceError("检测到非真实人脸，请重新上传")
-        if face.similarity > 0.9:
-            return {
-                "message": "success",
-                "data": face,
-            }
-        else:
-            return {
-                "message": "failed",
-                "data": face,
-            }
 
-        print(response)
+        return {
+            "message": "success" if face.similarity > 0.9 else "failed",
+            "data": face.similarity,
+        }
 
     except exceptions.ClientRequestException as e:
-        print(e.status_code)
-        print(e.request_id)
-        print(e.error_code)
-        print(e.error_msg)
+        print(e.status_code, e.request_id, e.error_code, e.error_msg)
+
+    finally:
+        if form_file:
+            form_file.close()
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception as cleanup_err:
+                print(f"清理临时文件失败: {cleanup_err}")
 
 
 async def createFaceSet(face_set_name: str):
@@ -134,48 +135,62 @@ async def deleteFaceSet(face_set_name: str):
 
 
 async def addFacesByFile(file: UploadFile, db: Session, current_user: User, face_set_name: str = "test"):
+    tmp_path = None
+    form_file = None
     try:
+        file_bytes = await file.read()
+        if not file_bytes:
+            raise ValueError("上传文件为空，请重新上传")
+
+        with tempfile.NamedTemporaryFile(delete=False,suffix='.'+file.content_type.split('/')[1], mode='wb') as tmp:
+            tmp.write(file_bytes)
+            tmp_path = tmp.name
+
+        form_file = FormFile(tmp_path, file.content_type)
+
         request = AddFacesByFileRequest()
         request.face_set_name = face_set_name
-
-        file_bytes = await file.read()
-        form_file = FormFile(
-            file_content=file_bytes,
-            file_name=file.filename,
-            content_type=file.content_type or "application/octet-stream"
-        )
-
         request.body = AddFacesByFileRequestBody(
-            external_fields="{\"timestamp\":12}",
-            image_file=FormFile(form_file)
+
+            image_file=form_file
         )
-        
-        response:AddFacesByFileResponse = client.add_faces_by_file(request)
+
+        response: AddFacesByFileResponse = client.add_faces_by_file(request)
         print(response)
-        face = response.faces[0]
+
+        face = response.faces[0] if response.faces else None
         if not face:
             raise AddFaceError("No face detected in the image.")
-        else:
-            new_face = Face(
-                face_id = response.faces[0],
-                face_set_id = response.face_set_id,
-                face_set_name = response.face_set_name,
-                user_id = current_user.id,
-            )
-            db.add(new_face)
-            db.commit()
-            db.refresh(new_face)
+
+        new_face = Face(
+            face_id=face.face_id,
+            face_set_id=response.face_set_id,
+            face_set_name=response.face_set_name,
+            user_id=current_user.id,
+        )
+        db.add(new_face)
+        db.commit()
+        db.refresh(new_face)
+
         return {
             "message": "successfully added face",
             "data": response
         }
-            
+
     except exceptions.ClientRequestException as e:
-        print(e.status_code)
-        print(e.request_id)
-        print(e.error_code)
-        print(e.error_msg)
+        print(e.status_code, e.request_id, e.error_code, e.error_msg)
         raise AddFaceError("Failed to add face: " + e.error_msg)
+
+    finally:
+        if form_file:
+            form_file.close()
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception as cleanup_err:
+                print(f"清理临时文件失败: {cleanup_err}")
+
+
 
 
 async def deleteFace(current_user: User, db: Session, face_set_name: str, face_id: str):
@@ -272,32 +287,34 @@ async def showFaces():
 
 
 # detect live face by file
-async def detectLiveFaceByFile(file: UploadFile):
-    try:
-        file_bytes = await file.read()
+import tempfile
 
-        # 将其封装为 FormFile，注意要传入 filename 和 content_type
-        form_file = FormFile(
-            file_content=file_bytes,
-            file_name=file.filename,
-            content_type=file.content_type or "application/octet-stream"
-        )
+async def detectLiveFaceByFile(file: UploadFile):
+    tmp_path = None
+    form_file = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
+            tmp.write(await file.read())
+            tmp_path = tmp.name
+
+        form_file = FormFile(tmp_path, file.content_type or "application/octet-stream")
 
         request = DetectLiveFaceByFileRequest()
-
-        request.body = DetectLiveFaceByFileRequestBody(
-            image_file=FormFile(form_file)
-        )
-        response:DetectLiveFaceByFileResponse = client.detect_live_face_by_file(request)
-        result:LiveDetectFaceRespResult = response.result
-        print(response)
-        if result.alive:
-            return True
-        else:
-            return False
+        request.body = DetectLiveFaceByFileRequestBody(image_file=form_file)
+        response: DetectLiveFaceByFileResponse = client.detect_live_face_by_file(request)
+        result: LiveDetectFaceRespResult = response.result
+        print("111" + response)
+        return result.alive
 
     except exceptions.ClientRequestException as e:
-        print(e.status_code)
-        print(e.request_id)
-        print(e.error_code)
-        print(e.error_msg)
+        print(e.status_code, e.request_id, e.error_code, e.error_msg)
+        return False
+
+    finally:
+        if form_file:
+            form_file.close()
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception as cleanup_err:
+                print(f"清理临时文件失败: {cleanup_err}")

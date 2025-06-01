@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
 from app.api.login import router as login_router
 from app.api.register import router as register_router
 from app.api.users import router as users_router
@@ -12,6 +14,16 @@ from app.services.photos_service import createFaceSet,showFaceSet,deleteFaceSet
 from huaweicloudsdkfrs.v2 import ShowFaceSetResponse, FaceSetInfo
 
 app = FastAPI()
+
+# 添加 CORS 中间件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # 或使用 ["*"] 来允许所有源（开发环境可）
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 Base.metadata.create_all(bind=engine)
 
 app.include_router(login_router, prefix="/login")

@@ -16,7 +16,7 @@ async def get_records(current_user: User = Depends(get_current_user), db: Sessio
     """
     Get all records.
     """
-    return Build_Sucess_Message(
+    return await Build_Sucess_Message(
         get_records_service,
         current_user=current_user,
         db=db,
@@ -30,12 +30,11 @@ async def get_student_records(
     """
     Get records for a specific student.
     """
-    if not current_user.is_admin and current_user.student_id != student_id:
+    if not current_user.is_teacher and current_user.id != student_id:
         raise HTTPException(status_code=403, detail="You do not have permission to access this student's records.")
     
-    return Build_Sucess_Message(
+    return await Build_Sucess_Message(
         get_records_service,
-        student_id=student_id,
         current_user=current_user,
         db=db,
     )

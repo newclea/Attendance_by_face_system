@@ -6,3 +6,4 @@ python-dotenv
 passlib
 huaweicloudsdkcore
 huaweicloudsdkfrs
+bcrypt

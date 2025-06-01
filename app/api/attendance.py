@@ -17,7 +17,7 @@ async def mark_attendance(file: UploadFile, db: Session = Depends(get_db)):
     """
     Mark attendance for a student in a class.
     """
-    return Build_Sucess_Message(
+    return await Build_Sucess_Message(
         attendance_service,
         file=file,
         db=db

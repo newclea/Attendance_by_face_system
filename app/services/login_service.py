@@ -19,7 +19,7 @@ async def login(student_id: str, password: str, db: Session):
         raise MissingParameterError("Missing required parameters")
 
     # 查询用户
-    user = db.query(User).filter(User.student_id == student_id).first()
+    user = db.query(User).filter(User.id == student_id).first()
     if not user:
         raise UserNotFoundError("The student does not register yet")
 
@@ -28,7 +28,7 @@ async def login(student_id: str, password: str, db: Session):
         raise InvalidPasswordError("Invalid or wrong password")
 
     # 创建 JWT Token
-    access_token = create_access_token(data={"sub": user.student_id}, expires_delta=timedelta(minutes=10))
+    access_token = create_access_token(data={"sub": user.id}, expires_delta=timedelta(minutes=10))
     user.is_active = True
     db.commit()
     
@@ -37,8 +37,9 @@ async def login(student_id: str, password: str, db: Session):
         "message": "Login successful",
         "user": {
             "id": user.id,
-            "student_id": user.student_id,
-            "student_name": user.student_name
+            "student_id": user.id,
+            "student_name": user.student_name,
+            "role": user.is_teacher
         },
         "access_token": access_token,
         "token_type": "bearer"
