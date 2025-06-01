@@ -14,6 +14,4 @@ class User(Base):
     is_active = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
 
-    attendances = relationship("Attendance", back_populates="student")
-    classes = relationship("Class", secondary="class_students", back_populates="students")
     faces = relationship("Face", back_populates="user")
