@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Form, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from app.utils import Build_Sucess_Message
 from app.services.register_service import register as register_service
@@ -22,8 +22,8 @@ async def register(
     # 必须读取文件，否则 FastAPI 会延迟释放 UploadFile 对象
     return await Build_Sucess_Message(
         service_func=register_service, 
-        student_id=student_id,
-        password=password,
+        student_id=student_id, 
+        password=password, 
         name=name,
         photo=photo,
         db=db

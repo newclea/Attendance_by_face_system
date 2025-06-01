@@ -5,7 +5,7 @@ class UserCreate(BaseModel):
     student_id: str
     password: str
     name: str
-    photo: UploadFile
+    photo: UploadFile = File(...)
 
 class UserLogin(BaseModel):
     student_id: str
