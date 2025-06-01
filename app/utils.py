@@ -3,9 +3,9 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from app.exceptions import InvalidPasswordError, UserNotFoundError, UserAlreadyExistsError, MissingParameterError, NotRealFaceError
 
-def Build_Sucess_Message(service_func, *args, **kwargs):
+async def Build_Sucess_Message(service_func, *args, **kwargs):
     try:
-        result = service_func(*args, **kwargs)
+        result = await service_func(*args, **kwargs)
         return JSONResponse(
             status_code=200,
             content={

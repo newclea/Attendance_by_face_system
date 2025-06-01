@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Form, UploadFile, File
 from fastapi.responses import JSONResponse
 from app.utils import Build_Sucess_Message
 from app.services.register_service import register as register_service
@@ -9,16 +9,22 @@ from app.deps import get_db
 router = APIRouter()
 
 @router.post("/register")
-async def register(form: UserCreate, db: Session = Depends(get_db)):
+async def register(
+    student_id: str = Form(...),
+    password: str = Form(...),
+    name: str = Form(...),
+    photo: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     """
     Register endpoint.
     """
 
-    return Build_Sucess_Message(
+    return await Build_Sucess_Message(
         service_func=register_service, 
-        student_id=form.student_id, 
-        password=form.password, 
-        name=form.name,
-        photo=form.photo,
+        student_id=student_id,
+        password=password,
+        name=name,
+        photo=photo,
         db=db
     )
