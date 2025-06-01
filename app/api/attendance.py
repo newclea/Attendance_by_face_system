@@ -13,13 +13,12 @@ router = APIRouter()
 
 
 @router.post("/attendance")
-async def mark_attendance(class_id: int,file: UploadFile, db: Session = Depends(get_db)):
+async def mark_attendance(file: UploadFile, db: Session = Depends(get_db)):
     """
     Mark attendance for a student in a class.
     """
     return Build_Sucess_Message(
         attendance_service,
-        class_id=class_id,
         file=file,
         db=db
     )
