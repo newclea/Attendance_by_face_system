@@ -1,9 +1,9 @@
 from app.auth.jwt import create_access_token
-from exceptions import InvalidPasswordError, UserNotFoundError, MissingParameterError
+from app.exceptions import InvalidPasswordError, UserNotFoundError, MissingParameterError
 from fastapi import Depends
 from sqlalchemy.orm import Session
-from deps import get_db
-from models.user import User
+from app.deps import get_db
+from app.models.user import User
 from passlib.context import CryptContext
 from datetime import timedelta
 from app.auth.dependencies import get_current_user

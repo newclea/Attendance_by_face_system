@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from utils import Build_Sucess_Message
+from app.utils import Build_Sucess_Message
 from app.services.login_service import login as login_service
 from app.services.login_service import logout as logout_service
-from schemas.user import UserLogin
+from app.schemas.user import UserLogin
 from app.auth.dependencies import get_current_user
 from app.deps import get_db
-from models.user import User
+from app.models.user import User
 
 router = APIRouter()
 

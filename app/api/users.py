@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, UploadFile, File
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from utils import Build_Sucess_Message
+from app.utils import Build_Sucess_Message
 from app.services.users_service import reset_password_service, reset_photo_service
 from app.auth.dependencies import get_current_user
 from sqlalchemy.orm import Session
 from app.deps import get_db
-from models.user import User
+from app.models.user import User
 
 
 

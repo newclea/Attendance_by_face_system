@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, UploadFile
 from app.services.photos_service import detectLiveFaceByFile, searchFaceByFile
-from exceptions import NotRealFaceError, AddFaceError
+from app.exceptions import NotRealFaceError, AddFaceError
 from app.services.records_service import add_record
 from app.models.face import Face
 from app.models.user import User

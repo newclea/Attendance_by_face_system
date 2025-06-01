@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse
-from utils import Build_Sucess_Message
+from app.utils import Build_Sucess_Message
 from app.services.photos_service import addFacesByFile
 from sqlalchemy.orm import Session
 from app.deps import get_db

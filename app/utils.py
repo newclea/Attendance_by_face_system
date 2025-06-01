@@ -1,7 +1,7 @@
 from typing import Any
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from exceptions import InvalidPasswordError, UserNotFoundError, UserAlreadyExistsError, MissingParameterError, NotRealFaceError
+from app.exceptions import InvalidPasswordError, UserNotFoundError, UserAlreadyExistsError, MissingParameterError, NotRealFaceError
 
 def Build_Sucess_Message(service_func, *args, **kwargs):
     try:

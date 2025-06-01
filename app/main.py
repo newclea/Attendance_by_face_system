@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from app.api.login import router as login_router
-from api.register import router as register_router
-from api.users import router as users_router
-from api.records import router as records_router
-from api.photos import router as photos_router
-from api.attendance import router as attendance_router
-from database import Base, engine
-from models import user
+from app.api.register import router as register_router
+from app.api.users import router as users_router
+from app.api.records import router as records_router
+from app.api.photos import router as photos_router
+from app.api.attendance import router as attendance_router
+from app.database import Base, engine
 import uvicorn
 import argparse
 from app.services.photos_service import createFaceSet,showFaceSet,deleteFaceSet

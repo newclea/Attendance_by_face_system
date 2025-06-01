@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, UploadFile
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from utils import Build_Sucess_Message
+from app.utils import Build_Sucess_Message
 from app.services.attendance_service import attendance_service
 from app.auth.dependencies import get_current_user
 from sqlalchemy.orm import Session

@@ -1,8 +1,8 @@
 from fastapi import Depends, UploadFile
 from passlib.context import CryptContext
-from exceptions import UserAlreadyExistsError, MissingParameterError, NotRealFaceError
-from deps import get_db
-from models.user import User
+from app.exceptions import UserAlreadyExistsError, MissingParameterError, NotRealFaceError
+from app.deps import get_db
+from app.models.user import User
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from app.services.photos_service import detectLiveFaceByFile, addFacesByFile

@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from utils import Build_Sucess_Message
+from app.utils import Build_Sucess_Message
 from app.services.records_service import get_records as get_records_service
 from app.auth.dependencies import get_current_user
 from app.deps import get_db
-from models.user import User
+from app.models.user import User
 from sqlalchemy.orm import Session
 
 router = APIRouter()

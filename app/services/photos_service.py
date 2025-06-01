@@ -5,7 +5,7 @@ from huaweicloudsdkfrs.v2 import *
 from huaweicloudsdkcore.http.formdata import FormFile
 from dotenv import load_dotenv
 from fastapi import UploadFile
-from exceptions import NotRealFaceError, AddFaceError
+from app.exceptions import NotRealFaceError, AddFaceError
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.face import Face
