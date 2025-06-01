@@ -22,7 +22,7 @@ async def reset_password(
     Reset password for the current user.
     """
     try:
-        return Build_Sucess_Message(
+        return await Build_Sucess_Message(
             reset_password_service,
             new_password=new_password,
             current_user=current_user,
@@ -32,7 +32,7 @@ async def reset_password(
         raise HTTPException(status_code=500, detail=str(e))
     
 
-@router.post("photo_reset")
+@router.post("/photo_reset")
 async def reset_photo(
       file: UploadFile = File(...),
       current_user: User = Depends(get_current_user),
@@ -42,7 +42,7 @@ async def reset_photo(
     Reset photo for the current user.
     """
     try:
-        return Build_Sucess_Message(
+        return await Build_Sucess_Message(
             reset_photo_service,
             new_photo=file,
             current_user=current_user,

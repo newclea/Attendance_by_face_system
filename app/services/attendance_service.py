@@ -16,13 +16,14 @@ async def attendance_service(
     """
     if not await detectLiveFaceByFile(file):
         raise NotRealFaceError("检测到非真实人脸，请重新上传")
-    file.seek(0)
+
     response = await searchFaceByFile(file)
     if response is None:
         raise AddFaceError("人脸库中未找到匹配的人脸，请先添加人脸")
     else:
         if response.get("message") == "success":
             face_id = response.get("data").get("face_id")
+            print(face_id)
             face = db.query(Face).filter(Face.face_id == face_id).first()
             record = Record(
                 student_id=face.user.id,

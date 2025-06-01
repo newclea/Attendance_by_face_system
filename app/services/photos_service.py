@@ -35,32 +35,42 @@ async def searchFaceByFile(file: UploadFile, face_set_name: str = "test"):
     tmp_path = None
     form_file = None
     try:
-        with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
-            tmp.write(await file.read())
+        # 读取文件内容并验证非空
+        file_bytes = await file.read()
+        if not file_bytes:
+            raise NotRealFaceError("上传的文件为空，请重新上传")
+        file.file.seek(0)  # 重置读取指针，确保后续还能读取
+
+        # 创建临时文件并写入内容
+        suffix = '.' + file.content_type.split('/')[-1] if '/' in file.content_type else ''
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, mode='wb') as tmp:
+            tmp.write(file_bytes)
             tmp_path = tmp.name
 
+        # 构造请求
         form_file = FormFile(tmp_path, file.content_type or "application/octet-stream")
-
         request = SearchFaceByFileRequest()
         request.face_set_name = face_set_name
         request.body = SearchFaceByFileRequestBody(
-            return_fields="[\"timestamp\"]",
-            filter="timestamp:10",
             top_n=10,
             image_file=form_file
         )
 
+        # 调用接口
         response: SearchFaceByFileResponse = client.search_face_by_file(request)
         if not response.faces:
-            raise NotRealFaceError("检测到非真实人脸，请重新上传")
+            raise NotRealFaceError("人脸库中未找到匹配的人脸，请先添加人脸2")
 
         face = response.faces[0]
         if not face:
-            raise NotRealFaceError("检测到非真实人脸，请重新上传")
+            raise NotRealFaceError("人脸库中未找到匹配的人脸，请先添加人脸3")
 
         return {
-            "message": "success" if face.similarity > 0.9 else "failed",
-            "data": face.similarity,
+            "message": "success" if face.similarity > 0.7 else "failed",
+            "data": {
+                "similarity": face.similarity,
+                "face_id": face.face_id,
+            }
         }
 
     except exceptions.ClientRequestException as e:
@@ -292,9 +302,18 @@ import tempfile
 async def detectLiveFaceByFile(file: UploadFile):
     tmp_path = None
     form_file = None
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, mode='wb') as tmp:
-            tmp.write(await file.read())
+        # 读取文件内容并验证非空
+        file_bytes = await file.read()
+        if not file_bytes:
+            raise NotRealFaceError("上传的文件为空，请重新上传")
+        file.file.seek(0)  # 重置读取指针，确保后续还能读取
+
+        # 创建临时文件并写入内容
+        suffix = '.' + file.content_type.split('/')[-1] if '/' in file.content_type else ''
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix, mode='wb') as tmp:
+            tmp.write(file_bytes)
             tmp_path = tmp.name
 
         form_file = FormFile(tmp_path, file.content_type or "application/octet-stream")
@@ -303,7 +322,6 @@ async def detectLiveFaceByFile(file: UploadFile):
         request.body = DetectLiveFaceByFileRequestBody(image_file=form_file)
         response: DetectLiveFaceByFileResponse = client.detect_live_face_by_file(request)
         result: LiveDetectFaceRespResult = response.result
-        print("111" + response)
         return result.alive
 
     except exceptions.ClientRequestException as e:

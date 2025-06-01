@@ -15,3 +15,12 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
 
     faces = relationship("Face", back_populates="user")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "student_name": self.student_name,
+            "is_teacher": self.is_teacher,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
