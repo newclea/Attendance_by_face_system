@@ -9,7 +9,10 @@ async def get_records(current_user: User, db: Session):
     Get all records for the current user.
     """
 
-    records = db.query(Record).filter(Record.student_id == current_user.id).order_by(Record.created_at).all()
+    if current_user.is_teacher:
+        records = db.query(Record).order_by(Record.created_at).all()
+    else:
+        records = db.query(Record).filter(Record.student_id == current_user.id).order_by(Record.created_at).all()
     
     if not records:
         raise HTTPException(status_code=404, detail="No records found")
