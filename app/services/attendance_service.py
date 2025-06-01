@@ -9,7 +9,7 @@ from app.models.record import Record
 
 
 async def attendance_service(
-     db: Session, class_id: int, file: UploadFile
+     db: Session, file: UploadFile
 ):
     """
     Mark attendance for a student in a class.
@@ -25,7 +25,6 @@ async def attendance_service(
             face_id = response.get("data").get("face_id")
             face = db.query(Face).filter(Face.face_id == face_id).first()
             record = Record(
-                class_id=class_id,
                 student_id=face.user.id,
                 student_name=face.user.student_name,
             )
