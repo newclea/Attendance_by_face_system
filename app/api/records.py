@@ -38,5 +38,4 @@ async def get_student_records(
         current_user=current_user,
         db=db,
     )
-
-@router
+4

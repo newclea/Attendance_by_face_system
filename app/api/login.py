@@ -29,7 +29,7 @@ async def logout(current_user: User = Depends(get_current_user), db: Session = D
     """
     Sign out endpoint.
     """
-    return Build_Sucess_Message(
+    return await Build_Sucess_Message(
         service_func=logout_service,
         current_user=current_user,
         db=db
