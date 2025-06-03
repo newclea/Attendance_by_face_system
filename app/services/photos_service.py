@@ -203,14 +203,18 @@ async def addFacesByFile(file: UploadFile, db: Session, current_user: User, face
 
 
 
-async def deleteFace(current_user: User, db: Session, face_set_name: str, face_id: str):
+async def deleteFace(user_id:str, db: Session, face_set_name: str = "test"):
     # Delete Face By FaceId
     try:
+
+        face = db.query(Face).filter(Face.student_id == user_id).first()
         request = DeleteFaceByFaceIdRequest()
         request.face_set_name = face_set_name
-        request.face_id = face_id
+        request.face_id = face.face_id if face else None
         response = client.delete_face_by_face_id(request)
-        db.query(Face).filter(Face.face_id == face_id, Face.student_id == current_user.student_id).delete()
+        db.query(Face).filter(Face.face_id == face.face_id, Face.student_id == user_id).delete()
+        db.query(User).filter(User.id == user_id).delete()
+        db.commit()
         print(response)
         return {
             "message": "successfully deleted face",
