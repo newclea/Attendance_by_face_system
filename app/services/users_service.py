@@ -36,7 +36,7 @@ async def reset_photo_service(new_photo: UploadFile, current_user: User, db: Ses
     faces = db.query(Face).filter(Face.user_id == current_user.id).all()
     for face in faces:
         await deleteFace(current_user=current_user, db=db, face_set_name=face.face_set_name, face_id=face.face_id)
-
+        face.delete(db=db)  # 删除数据库中的人脸记录
     # 添加新的人脸
     await addFacesByFile(file=new_photo, db=db, current_user=current_user)
 
